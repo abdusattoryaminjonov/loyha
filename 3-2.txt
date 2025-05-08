@@ -1,0 +1,50 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x27, 16, 2); // LCD I2C manzili
+
+const int trigPin = 9;
+const int echoPin = 10;
+
+void setup() {
+  Serial.begin(9600);
+  lcd.init();
+  lcd.backlight();
+
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+
+  lcd.setCursor(0, 0);
+  lcd.print("Masofa o'lchovchi");
+  delay(2000);
+  lcd.clear();
+}
+
+void loop() {
+  // Ultrasonik signal yuborish
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  // Signalni qabul qilish
+  long duration = pulseIn(echoPin, HIGH);
+  float distance_cm = duration * 0.034 / 2;
+
+  // LCDga chiqarish
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Masofa: ");
+  lcd.print(distance_cm);
+  lcd.print(" cm");
+
+  lcd.setCursor(0, 1);
+  if (distance_cm < 65) {
+    lcd.print("XAVFLI MASOFA");
+  } else {
+    lcd.print("XAVFSIZ MASOFA");
+  }
+
+  delay(1000);
+}
