@@ -1,0 +1,61 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+// LCD manzili (odatda 0x27 bo‘ladi)
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+// LED pinlari
+const int redPin = 2;
+const int yellowPin = 3;
+const int greenPin = 4;
+
+void setup() {
+  // LED pinlarini chiqish qilib sozlash
+  pinMode(redPin, OUTPUT);
+  pinMode(yellowPin, OUTPUT);
+  pinMode(greenPin, OUTPUT);
+
+  // LCD boshlash
+  lcd.init();
+  lcd.backlight();
+
+  lcd.setCursor(0, 0);
+  lcd.print("  Svetafor ON  ");
+  delay(2000);
+  lcd.clear();
+}
+
+void loop() {
+  // Qizil chiroq yoqiladi
+  digitalWrite(redPin, HIGH);
+  lcd.setCursor(0, 0);
+  lcd.print("To'xtang (Qizil)");
+  delay(3000);
+
+  // Sariq chiroq 3 marta miltillaydi
+  for (int i = 0; i < 3; i++) {
+    digitalWrite(yellowPin, HIGH);
+    delay(300);
+    digitalWrite(yellowPin, LOW);
+    delay(300);
+  }
+
+  // Qizil o'chadi, yashil yoqiladi
+  digitalWrite(redPin, LOW);
+  digitalWrite(greenPin, HIGH);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Yuring (Yashil)");
+  delay(3000);
+
+  // Sariq chiroq 3 marta miltillaydi
+  digitalWrite(greenPin, LOW);
+  for (int i = 0; i < 3; i++) {
+    digitalWrite(yellowPin, HIGH);
+    delay(300);
+    digitalWrite(yellowPin, LOW);
+    delay(300);
+  }
+
+  lcd.clear();
+}
