@@ -1,0 +1,87 @@
+#include <WiFi.h>
+#include <PubSubClient.h>
+#include "DHT.h"
+
+// WiFi ma'lumotlari
+const char* ssid = "Wokwi-GUEST";
+const char* password = "";
+
+// MQTT broker
+const char* mqtt_server = "broker.hivemq.com";
+
+// DHT22 sozlamalari
+#define DHTPIN 15          // DHT22 ulangan pin
+#define DHTTYPE DHT22
+DHT dht(DHTPIN, DHTTYPE);
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+void setup_wifi() {
+  delay(10);
+  Serial.println();
+  Serial.print("WiFiga ulanmoqda...");
+
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("\nWiFiga ulandi ✅");
+  Serial.print("IP: ");
+  Serial.println(WiFi.localIP());
+}
+
+void reconnect() {
+  while (!client.connected()) {
+    Serial.print("MQTT brokerga ulanmoqda...");
+    if (client.connect("ESP32Client")) {
+      Serial.println("MQTT brokerga ulandi ✅");
+    } else {
+      Serial.print("Xatolik. Kod: ");
+      Serial.print(client.state());
+      Serial.println("  Qayta urinish...");
+      delay(5000);
+    }
+  }
+}
+
+void setup() {
+  Serial.begin(115200);
+  dht.begin();
+  setup_wifi();
+  client.setServer(mqtt_server, 1883);
+}
+
+void loop() {
+  if (!client.connected()) {
+    reconnect();
+  }
+  client.loop();
+
+  float humidity = dht.readHumidity();
+  float temperature = dht.readTemperature();
+
+  if (isnan(humidity) || isnan(temperature)) {
+    Serial.println("Sensor o'qilmadi ❌");
+    return;
+  }
+
+  // Serialda ko'rsatish
+  Serial.print("Yuborildi -> Namlik: ");
+  Serial.print(humidity);
+  Serial.print("%, Harorat: ");
+  Serial.print(temperature);
+  Serial.println("C");
+
+  // MQTT xabari shakllantirish
+  char msg[100];
+  snprintf(msg, 100, "Yuborildi -> Namlik: %.1f%%, Harorat: %.1fC", humidity, temperature);
+
+  // MQTT brokerga yuborish
+  client.publish("esp32/dht22", msg);
+
+  delay(5000); // 5 soniyada bir o'qiydi
+}
