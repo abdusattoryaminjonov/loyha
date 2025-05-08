@@ -1,0 +1,71 @@
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+#define OLED_RESET    -1
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+const int greenLED = 3;  // Yashil LED
+const int yellowLED = 4; // Sariq LED
+const int redLED = 5;    // Qizil LED
+
+void setup() {
+  // OLED ekran sozlamalari
+  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {  // Manzil 0x3C yoki 0x3D
+    Serial.println(F("OLED ekran topilmadi"));
+    while(true); // Dasturni to‘xtatish
+  }
+  display.display();  
+  delay(2000);  // 2 sekund kutish
+
+  // LED pinlarni chiqish sifatida belgilash
+  pinMode(greenLED, OUTPUT);
+  pinMode(yellowLED, OUTPUT);
+  pinMode(redLED, OUTPUT);
+  
+  // Serial monitorni boshlash
+  Serial.begin(9600);
+}
+
+void loop() {
+  // Yashil LEDni yoqish (YURING)
+  digitalWrite(greenLED, HIGH);
+  digitalWrite(yellowLED, LOW);
+  digitalWrite(redLED, LOW);
+
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0, 0);
+  display.print("YURING");
+  display.display();
+  delay(5000); // 5 soniya
+
+  // Sariq LEDni yoqish (KUTING)
+  digitalWrite(greenLED, LOW);
+  digitalWrite(yellowLED, HIGH);
+  digitalWrite(redLED, LOW);
+
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0, 0);
+  display.print("KUTING");
+  display.display();
+  delay(3000); // 3 soniya
+
+  // Qizil LEDni yoqish (TO'XTANG)
+  digitalWrite(greenLED, LOW);
+  digitalWrite(yellowLED, LOW);
+  digitalWrite(redLED, HIGH);
+
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0, 0);
+  display.print("TO'XTANG");
+  display.display();
+  delay(5000); // 5 soniya
+}
